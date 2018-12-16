@@ -134,14 +134,14 @@ int main()
     	X3 = ((X1+X2)+2)/4;
     	B4 = AC4*(unsigned long)(X3 + 32768)/32768;
     	B7 = ((unsigned long)UP - B3)*(50000>>oss);
-    	if(B7 < 0x80000000) p = (B7*2)/B4;
-    	else p = (B7/B4)*2;
+    	p = (B7 < 0x80000000) ? (B7*2)/B4 : (B7/B4)*2;
     	X1 = (p/256)*(p/256);
     	X1 = (X1*3038)/65536;
     	X2 = (-7357*p)/65536;
     	p = p+(X1+X2+3791)/16;
 
-
+    	//to avoid warning about unused MB bb
+    	MB = MB + 0 ;
 
     	T_int = T/10;
     	T_dec = T % 10;
