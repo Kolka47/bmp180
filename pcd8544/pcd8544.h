@@ -1,100 +1,53 @@
 /*
- * Biblioteka dla LCD Nokia 3310 i innych
- * opartych o sterownik pcd8544.h
+ * pcd8544.h
  *
+ *  Created on: 1 dec 2018
+ *      Author: Wojciech Kolisz
  */
 
-#ifndef _PCD8544_H_
-#define _PCD8544_H_
-
-#define FALSE                      0
-#define TRUE                       1
-
-// --------------- Wartoci zwrotne
-#define OK                         0
-#define OUT_OF_BORDER              1
-#define OK_WITH_WRAP               2
+#ifndef PCD8544_PCD8544_H_
+#define PCD8544_PCD8544_H_
 
 
-#define LCD_X_RES                  84    /* rozdzielczosc  x */
-#define LCD_Y_RES                  48    /* rozdzielczosc  y */
-#define EMPTY_SPACE_BARS           2
-#define BAR_X                      5
-#define BAR_Y                      38
+#define LCD_DDR DDRB
+#define LCD_PORT PORTB
 
-// --------------- LCD Port
-#define LCD_PORT                   PORTB
-#define LCD_DDR                    DDRB
+#define LCD_DC PB1
+#define LCD_CS PB2
+#define LCD_MOSI PB3
+#define LCD_RST PB4
+#define LCD_SCK PB5
 
-// --------------- ATMega32 pod³aczenie pinów
+#define LED_DDR DDRD
+#define LED_PORT PORTD
+#define LED PD5
 
-#define LCD_DC_PIN                 PB1  // DC
-#define LCD_CE_PIN                 PB2  // CE
-#define SPI_MOSI_PIN               PB3  // MOSI
-#define LCD_RST_PIN                PB4  // RST
-#define SPI_CLK_PIN                PB5  // CLK
-#define LCD_PWR_PIN			       PB0  //zasilanie PCD
+#define DATA 1
+#define CMD 0
 
-// --------------- Pamiêc Podrêczna dla LCD ( 84 * 48 ) / 8 = 504 bytes
-#define LCD_CACHE_SIZE             ( ( LCD_X_RES * LCD_Y_RES ) / 8)
+#define LCD_BUF_SIZE 504	//84pix*48pix / 8
 
-// --------------- Definicje Typów
-typedef char                       bool;
-typedef unsigned char              byte;
-typedef unsigned int               word;
+//for Lcd_Int() to determinate number system
+#define BIN 2
+#define DEC 10
+#define HEX 16
 
-// --------------- Enumeratorki
-typedef enum
+void Lcd_Init();
+void Lcd_Upd();
+void Lcd_Clr();
+void Lcd_Locate(uint8_t x, uint8_t y);
+void Lcd_Char(uint8_t a);
+void Lcd_Str(char string[]);
+void Lcd_Int(int number, uint8_t system);
+void Lcd_Img(const uint8_t *picture);
+void Lcd_Send(uint8_t dc, uint8_t data);
+void Lcd_Contrast(uint8_t cont);
+
+
+//font array
+static const uint8_t Font [][5] PROGMEM=
 {
-    LCD_CMD  = 0,
-    LCD_DATA = 1
-
-} LcdCmdData;
-
-typedef enum
-{
-    PIXEL_OFF =  0,
-    PIXEL_ON  =  1,
-    PIXEL_XOR =  2
-
-} LcdPixelMode;
-
-typedef enum
-{
-    FONT_1X = 1,
-    FONT_2X = 2
-
-} LcdFontSize;
-
-// --------------- Prototypy funkcji
-void PCD_Ini        ( void );
-void PCD_Off		( void );
-void PCD_On			( void );
-void PCD_Clr        ( void );
-void PCD_Upd        ( void );
-void PCD_Img        ( const byte *imageData );
-void PCD_Contr      ( byte contrast);
-//void PCD_Defchar    (uint8_t nr, uint8_t *def_znak);
-byte PCD_Locate		( byte x, byte y );
-byte PCD_Chr        ( LcdFontSize size, char ch );
-byte PCD_Str        ( LcdFontSize size, char dataArray[] );
-byte PCD_FStr       ( LcdFontSize size, const byte *dataPtr );
-byte PCD_Frame (byte x1, byte x2, byte y1, byte y2, LcdPixelMode mode);
-void PCD_Int		(LcdFontSize size,int val);
-byte PCD_Pixel      ( byte x, byte y, LcdPixelMode mode );
-byte PCD_Line       ( byte x1, byte x2, byte y1, byte y2, LcdPixelMode mode );
-byte PCD_Rect       ( byte x1, byte x2, byte y1, byte y2, LcdPixelMode mode );
-byte PCD_SBar       ( byte baseX, byte baseY, byte height, byte width, LcdPixelMode mode );
-byte PCD_Bars       ( byte data[], byte numbBars, byte width, byte multiplier );
-
-
-
-
-// Tablica znaków 5x7 .....
-
-static const byte FontLookup [][5] PROGMEM=
-{
-    { 0x00, 0x00, 0x00, 0x00, 0x00 },   /* spacja */
+    { 0x00, 0x00, 0x00, 0x00, 0x00 },   /* space */
     { 0x00, 0x00, 0x2f, 0x00, 0x00 },   /* ! */
     { 0x00, 0x07, 0x00, 0x07, 0x00 },   /* " */
     { 0x14, 0x7f, 0x14, 0x7f, 0x14 },   /* # */
@@ -185,16 +138,12 @@ static const byte FontLookup [][5] PROGMEM=
     { 0x44, 0x28, 0x10, 0x28, 0x44 },   /* x */
     { 0x0C, 0x50, 0x50, 0x50, 0x3C },   /* y */
     { 0x44, 0x64, 0x54, 0x4C, 0x44 },   /* z */
-	{ 0x00, 0x06, 0x09, 0x09, 0x06 },	/* stopnie o*///123
-	{ 0x7E, 0x43, 0x41, 0x43, 0x7E },   /*bat0%*/   //123
-	{ 0x7E, 0x63, 0x61, 0x63, 0x7E },   /*bat25%*/   //124
-	{ 0x7E, 0x73, 0x71, 0x73, 0x7E },   /*bat50%*/  //125
-	{ 0x7E, 0x7B, 0x79, 0x7B, 0x7E },	/*bat75%*/  //126
-	{ 0x7E, 0x7F, 0x7D, 0x7F, 0x7E },	/*bat100%*/  //127
-	{ 0x22, 0x14, 0x7F, 0x49, 0x36 },	/*BT*/	     //128
-	{ 0x1C, 0x7F, 0x00, 0x2A, 0x49 },	/*SpkON*/    //129
-	{ 0x1C, 0x7F, 0x00, 0x00, 0x00 }	/*SpkOFF*/   //130
-
+	{ 0x00, 0x08, 0x77, 0x41, 0x00 },	/* { */
+	{ 0x00, 0x00, 0x7f, 0x00, 0x00 },	/* | */
+	{ 0x00, 0x41, 0x77, 0x08, 0x00 },   /* } */
+	{ 0x10, 0x08, 0x18, 0x10, 0x08 },	/* ~ */
+	{ 0x00, 0x06, 0x09, 0x09, 0x06 },	/*stopnie o */ //127
 };
 
-#endif  /*  _PCD8544_H_ */
+
+#endif /* PCD8544_PCD8544_H_ */
