@@ -94,12 +94,12 @@ void Lcd_Char(uint8_t a)
 		lcd_buffer[lcd_location] = pgm_read_byte(&Font[a - 32][i]);
 
 		lcd_location++;
-		if(lcd_location == 504) lcd_location = 0;
+		if(lcd_location == LCD_BUF_SIZE) lcd_location = 0;
 
 }
 
 //Load strings to lcd_buffer
-void Lcd_Str(char string[])
+void Lcd_Str(char *string)
 {
 	uint8_t i = 0;
 
